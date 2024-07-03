@@ -11,21 +11,36 @@ const menuItems = [
 
 const scrapeController = async (browserInstance) => {
   try {
-    for (let i = 0; i < menuItems.length; i++) {
-      const url = menuItems[i];
-      const results = await scrapers.scraper(browserInstance, url);
-      const filename = `${url.split("/").pop()}.json`;
-      fs.writeFile(filename, JSON.stringify(results, null, 2), (error) => {
+    // Run to get data from 5 pages
+    // for (let i = 0; i < menuItems.length; i++) {
+    //   const url = menuItems[i];
+    //   const results = await scrapers.scraper(browserInstance, url);
+    //   const filename = `${url.split("/").pop()}.json`;
+    //   fs.writeFile(filename, JSON.stringify(results, null, 2), (error) => {
+    //     if (error) {
+    //       console.log(`Failed to write data to ${filename}: ${error}`);
+    //     } else {
+    //       console.log(`Successfully wrote data to ${filename}`);
+    //     }
+    //   });
+    // }
+    // console.log("Done scraping from 5 pages");
+    // await browserInstance.close();
+    // process.exit(0);
+
+    // Run to get categories data
+    const results = await scrapers.scrapeCategoriesData(browserInstance);
+    fs.writeFile(
+      "categories-data.json",
+      JSON.stringify(results, null, 2),
+      (error) => {
         if (error) {
-          console.log(`Failed to write data to ${filename}: ${error}`);
+          console.log(`Failed to write data to categories-data.json: ${error}`);
         } else {
-          console.log(`Successfully wrote data to ${filename}`);
+          console.log(`Successfully wrote data to categories-data.json`);
         }
-      });
-    }
-    console.log("Done scraping from 5 pages");
-    await browserInstance.close();
-    process.exit(0);
+      }
+    );
   } catch (error) {
     console.log("Error appeared at scrapeController: ", error);
   }

@@ -190,4 +190,72 @@ const scraper = async (browser, url) => {
   }
 };
 
-module.exports = { scraper };
+const scrapeBigCategoriesUrls = async (browser) => {
+  try {
+    const newPage = await browser.newPage();
+    await newPage.goto("https://phongtro123.com/");
+    await newPage.waitForSelector("#webpage");
+
+    const results = await newPage.$$eval(
+      "#page-footer ul.show-sublink li a",
+      (elements) => {
+        return elements.map((element) => ({
+          name: element?.innerText,
+          url: element?.href,
+        }));
+      }
+    );
+
+    await newPage.close();
+    return results;
+  } catch (error) {
+    console.log("Error appeared at scrapeBigCategoriesUrls: ", error);
+    return [];
+  }
+};
+
+const scrapeSmallCategoriesData = async (browser, url) => {
+  try {
+    const newPage = await browser.newPage();
+    await newPage.goto(url);
+    console.log(`Accessed ${url}`);
+    await newPage.waitForSelector("#webpage");
+
+    const results = await newPage.$$eval(
+      "#main ul.location-district > li > a",
+      (elements) => {
+        return elements.map((element) => ({
+          name: element?.innerText.replace(/\s*\(.*?\)/, ""),
+          url: element?.href.replace("https://phongtro123.com/", ""),
+        }));
+      }
+    );
+
+    await newPage.close();
+    return results;
+  } catch (error) {
+    console.log("Error appeared at scrapeSmallCategoryData: ", error);
+    return [];
+  }
+};
+
+const scrapeCategoriesData = async (browser) => {
+  try {
+    const bigCategoriesData = await scrapeBigCategoriesUrls(browser);
+
+    const smallCategoriesPromises = bigCategoriesData.map((category) =>
+      scrapeSmallCategoriesData(browser, category.url)
+    );
+
+    const data = await Promise.all(smallCategoriesPromises);
+    return data;
+  } catch (error) {
+    console.log("Error appeared at scrapeCategoriesData: ", error);
+    return [];
+  }
+};
+
+module.exports = {
+  scraper,
+  scrapeCategoriesData,
+};
