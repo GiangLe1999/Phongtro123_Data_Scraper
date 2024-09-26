@@ -35,7 +35,7 @@ const scrapeDetailPagesUrlsOn5Page = async (browser, url) => {
     let pageUrl = url;
     const detailPageUrls = [];
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 20; i++) {
       const { urls, nextPageUrl } = await scrapeDetailPagesUrlsOn1Page(
         pageUrl,
         browser
